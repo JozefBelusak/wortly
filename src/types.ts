@@ -1,3 +1,5 @@
+import type { SkillId } from './data/grammarSkills'
+
 export const topics = {
   conjugation: 'Časovanie slovies',
   'word-order': 'Slovosled',
@@ -22,6 +24,12 @@ export const topics = {
   passive: 'Passiv',
   connectors: 'Spojky a argumentácia',
   prepositions: 'Pokročilé predložky',
+  genitive: 'Genitiv',
+  'verb-prepositions': 'Slovesá a predložkové väzby',
+  negation: 'Zápor',
+  future: 'Futur I',
+  'noun-declension': 'Skloňovanie podstatných mien',
+  'word-formation': 'Slovotvorba',
   vocabulary: 'Slovná zásoba',
 } as const
 
@@ -45,7 +53,10 @@ export interface Exercise {
   hint: string
   explanation: string
   tags: Topic[]
+  skillTags: SkillId[]
   difficulty: Level
+  practice?: 'focused' | 'mixed'
+  diagnostics?: { skill: SkillId; patterns: string[]; hint: string }[]
   readingFacts?: string[][]
   support?: ExerciseSupport
 }
@@ -116,6 +127,7 @@ export interface Attempt {
   type: ExerciseType
   result: 'correct' | 'incorrect'
   topic: Topic
+  skill?: SkillId
   at: number
 }
 
@@ -152,10 +164,24 @@ export interface CourseUnit {
   writing?: CourseWriting
 }
 
+export interface ShortResponse {
+  prompt: string
+  note: string
+  language?: 'de'
+}
+
 export interface DailyPlan {
   date: string
   cardIds: string[]
   exerciseIds: string[]
+  position: number
+  response?: ShortResponse
+}
+
+export interface MixedPractice {
+  exerciseId: string
+  reason: 'repair' | 'combine' | 'review' | 'focus'
+  skill?: SkillId
   position: number
 }
 
@@ -167,4 +193,5 @@ export interface StudyData {
   checkpoints: Record<string, number>
   sentenceLevel?: Level | ''
   daily?: DailyPlan
+  mixed?: MixedPractice
 }

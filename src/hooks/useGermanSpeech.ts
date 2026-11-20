@@ -6,8 +6,10 @@ const germanFemale = /katja|hedda|anna|marlene|vicki|petra|katrin|kerstin|frau|f
 export function germanVoice(voices: SpeechSynthesisVoice[]) {
   const german = voices.filter(voice => /^de(?:[-_]|$)/i.test(voice.lang))
   const standard = german.filter(voice => /^de[-_]de$/i.test(voice.lang))
-  return standard.find(voice => germanFemale.test(voice.name)) ?? german.find(voice => germanFemale.test(voice.name))
-    ?? standard[0] ?? german[0]
+  return standard.find(voice => voice.localService && germanFemale.test(voice.name))
+    ?? standard.find(voice => germanFemale.test(voice.name))
+    ?? german.find(voice => germanFemale.test(voice.name))
+    ?? standard.find(voice => voice.localService) ?? standard[0] ?? german[0]
 }
 
 export function useGermanSpeech() {
@@ -47,13 +49,15 @@ export function useGermanSpeech() {
     utterance.lang = voice?.lang ?? 'de-DE'
     if (voice) utterance.voice = voice
     utterance.rate = 0.88
-    utterance.onend = () => {
-      if (current.current !== utterance) return
+    const finish = () => {
+      if (current.current !== utterance) return false
       current.current = null
       setPlaying(undefined)
+      return true
     }
+    utterance.onend = finish
     utterance.onerror = () => {
-      utterance.onend?.({} as SpeechSynthesisEvent)
+      if (!finish()) return
       setMessage('Výslovnosť sa nepodarilo prehrať. Skús znova alebo skontroluj nemecký hlas v zariadení.')
     }
 

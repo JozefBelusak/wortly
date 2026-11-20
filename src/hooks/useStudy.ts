@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { SkillId } from '../data/grammarSkills'
 import type { Attempt, Exercise, Rating, StudyData, Topic } from '../types'
 import { scheduleReview } from '../utils/study'
 
@@ -27,8 +28,8 @@ export function useStudy() {
     }
   }, [data])
 
-  function record(exercise: Exercise, result: Attempt['result'], topic: Topic = exercise.tags[0] ?? 'vocabulary') {
-    const attempt: Attempt = { exerciseId: exercise.id, type: exercise.type, result, topic, at: Date.now() }
+  function record(exercise: Exercise, result: Attempt['result'], topic: Topic = exercise.tags[0] ?? 'vocabulary', skill?: SkillId) {
+    const attempt: Attempt = { exerciseId: exercise.id, type: exercise.type, result, topic, skill, at: Date.now() }
     setData(current => ({ ...current, attempts: [...current.attempts, attempt] }))
   }
 

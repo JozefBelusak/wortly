@@ -89,6 +89,7 @@ export const reverseSentences: Exercise[] = sentences.filter(sentence => Object.
   answer: sentence.prompt,
   acceptedAnswers: slovakAlternatives[sentence.id] ?? [],
   tags: ['vocabulary'],
+  skillTags: ['meaning'],
   hint: 'Prelož všetky časti vety vrátane času a predmetu. Začni časovaným slovesom.',
   explanation: sentence.explanation,
 }))

@@ -40,7 +40,7 @@ export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloh
     setResult(grade)
     setPrevious(answer.trim())
     setAttempts(attempts + 1)
-    record(exercise, grade.status === 'incorrect' ? 'incorrect' : 'correct', grade.status === 'incorrect' ? grade.topic : undefined)
+    record(exercise, grade.status === 'incorrect' ? 'incorrect' : 'correct', grade.status === 'incorrect' ? grade.topic : undefined, grade.status === 'incorrect' ? grade.skill : undefined)
     if (grade.status === 'incorrect') input.current?.focus()
   }
 

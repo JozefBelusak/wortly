@@ -1,4 +1,4 @@
-import { BookOpen, CircleCheck, ClipboardList, Crosshair, Layers3, PencilLine, Play, Shapes, TextCursorInput } from 'lucide-react'
+import { BookOpen, CircleCheck, ClipboardList, Crosshair, Layers3, Play, Shapes, Shuffle, TextCursorInput } from 'lucide-react'
 import { PageIntro } from '../components/Layout'
 import { navigation, pageLink } from '../components/navigation'
 import type { Page } from '../components/navigation'
@@ -7,10 +7,10 @@ import type { StudyData } from '../types'
 import { dueCards, localDate, studyTotals, wordCard } from '../utils/study'
 
 const shortcuts = [
+  { page: 'mixed', icon: Shuffle, detail: 'Spoj staršie javy s novými', tone: 'blue' },
   { page: 'grammar', icon: Shapes, detail: 'Pády, časovanie a slovosled', tone: 'blue' },
   { page: 'flashcards', icon: Layers3, detail: 'Vybav si slová a celé frázy', tone: 'ochre' },
   { page: 'reading', icon: BookOpen, detail: 'Krátke texty s otázkami', tone: 'green' },
-  { page: 'correction', icon: PencilLine, detail: 'Nájdi chybu a vetu prepíš', tone: 'plum' },
 ] as const satisfies readonly { page: Page; icon: typeof Shapes; detail: string; tone: string }[]
 
 export function Dashboard({ data }: { data: StudyData }) {

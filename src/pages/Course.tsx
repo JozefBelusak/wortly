@@ -19,6 +19,7 @@ export function Course({ study, unitId }: { study: Study; unitId: string | null 
 
   return <>
     <PageIntro title="Učebná cesta" description="Od prvej vety po súvislý text. Správne odpovede z bežných cvičení sa započítavajú aj tu." action={next && <a className="button button-primary" href={unitLink(next.unit.id)}>Pokračovať v učení</a>} />
+    <a className="text-link course-mixed-link" href={pageLink('mixed')}>Precvičovať témy spolu</a>
     <div className="course-levels">
       {levels.map(level => {
         const items = progress.filter(item => item.unit.level === level)
@@ -82,6 +83,7 @@ function UnitPage({ study, current, progress, next }: { study: Study; current: C
             {!!unit.reading?.minCorrect && <MasteryCheck done={current.correctReading >= unit.reading.minCorrect}>{Math.min(current.correctReading, unit.reading.minCorrect)} z {unit.reading.minCorrect} správnych odpovedí pri čítaní</MasteryCheck>}
             {unit.writing && <MasteryCheck done={current.hasWriting}>Uložený vlastný text</MasteryCheck>}
           </ul>
+          <a className="text-link" href={pageLink('mixed')}>Zopakovať aj staršie témy</a>
         </section>
         {(reading || unit.writing || unit.vocabulary?.length) && <section className="panel side-note">
           <BookOpen size={20} /><h2>Ďalšie úlohy k lekcii</h2>

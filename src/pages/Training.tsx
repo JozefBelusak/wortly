@@ -2,9 +2,7 @@ import { ChevronDown, CircleCheck, NotebookPen } from 'lucide-react'
 import { useState } from 'react'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
-import { availableAdvancedExercises, availableSentences } from '../data/curriculum'
-import { corrections } from '../data/corrections'
-import { grammar } from '../data/grammar'
+import { availablePractice } from '../data/curriculum'
 import { reverseSentences } from '../data/sentences'
 import { Exercise, ExercisePosition } from '../features/Exercise'
 import type { Study } from '../hooks/useStudy'
@@ -22,9 +20,12 @@ type Mode = keyof typeof modes
 export function Training({ mode, study, initialTopic }: { mode: Mode; study: Study; initialTopic: string | null }) {
   const [requestedTopic, setTopic] = useState(initialTopic ?? '')
   const [direction, setDirection] = useState('de')
-  const sentences = availableSentences(study.data)
-  const grammarBank = [...grammar, ...availableAdvancedExercises(study.data).filter(exercise => exercise.type === 'grammar')]
-  const topicsInUse = new Set([...grammarBank, ...sentences, ...corrections].flatMap(exercise => exercise.tags))
+
+  const practice = availablePractice(study.data)
+  const sentences = practice.filter(exercise => exercise.type === 'sentence')
+  const grammarBank = practice.filter(exercise => exercise.type === 'grammar')
+  const corrections = practice.filter(exercise => exercise.type === 'correction')
+  const topicsInUse = new Set(practice.flatMap(exercise => exercise.tags))
   const grammarTopics = (Object.keys(topics) as Topic[]).filter(topic => topicsInUse.has(topic))
   const topic = mode === 'grammar' ? grammarTopics.find(item => item === requestedTopic) ?? '' : ''
   const eligibleLevels = levels.filter(level => sentences.some(item => item.difficulty === level))

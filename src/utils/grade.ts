@@ -1,11 +1,13 @@
+import { matchingSkill, skillTopic } from '../data/grammarSkills'
+import type { SkillId } from '../data/grammarSkills'
 import { topics } from '../types'
 import type { Exercise, Topic } from '../types'
 
 export type Grade =
   | { status: 'correct' | 'alternative'; title: string }
-  | { status: 'incorrect'; title: string; topic: Topic; note?: string }
+  | { status: 'incorrect'; title: string; topic: Topic; note?: string; skill?: SkillId }
 
-const wordList = (text: string) => text.match(/[\p{L}\p{N}]+/gu) ?? []
+const wordList = (text: string): string[] => text.match(/[\p{L}\p{N}]+/gu) ?? []
 const normalize = (text: string) => text.normalize('NFC').trim()
   .replace(/[.!?]+$/, '').replace(/\s*([,;:.!?])\s*/g, '$1 ').trim().replace(/\s+/g, ' ')
 
@@ -81,7 +83,7 @@ function diagnose(exercise: Exercise, input: string[], expected: string[]): Grad
   return incorrect(fallback)
 }
 
-export function gradeAnswer(exercise: Exercise, response: string): Grade {
+function gradeResponse(exercise: Exercise, response: string): Grade {
   const value = normalize(response)
   const known = [exercise.answer, ...exercise.acceptedAnswers].map(normalize)
   const match = known.indexOf(value)
@@ -123,4 +125,26 @@ export function gradeAnswer(exercise: Exercise, response: string): Grade {
   }
 
   return diagnose(exercise, input, expected)
+}
+
+export function gradeAnswer(exercise: Exercise, response: string): Grade {
+  const grade = gradeResponse(exercise, response)
+  if (grade.status !== 'incorrect') return grade
+
+  const script = ' ' + wordList(response.toLocaleLowerCase()).join(' ') + ' '
+  const pattern = exercise.diagnostics?.find(item => item.patterns.some(value => script.includes(' ' + wordList(value.toLocaleLowerCase()).join(' ') + ' ')))
+  if (pattern) return { ...grade, topic: skillTopic(pattern.skill), skill: pattern.skill, title: pattern.hint, note: undefined }
+
+
+  const skill = matchingSkill(exercise.skillTags, grade.topic)
+  if (exercise.practice !== 'mixed' || !skill) return { ...grade, skill }
+
+  const expected = wordList(exercise.answer.toLocaleLowerCase())
+  const actual = wordList(response.toLocaleLowerCase())
+  const absent = expected.filter(word => !actual.includes(word))
+  const inserted = actual.filter(word => !expected.includes(word))
+  const structural = (word: string) => articles.test(word) || pronoun.test(word) || possessive.test(word)
+    || sein.has(word) || haben.has(word) || modal.test(word) || perfectForm.test(word)
+  const oneForm = absent.length === 1 && inserted.length === 1 && structural(absent[0]) && structural(inserted[0])
+  return { ...grade, skill: oneForm ? skill : undefined }
 }

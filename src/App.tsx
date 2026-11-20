@@ -7,6 +7,7 @@ import { Daily } from './pages/Daily'
 import { Dashboard } from './pages/Dashboard'
 import { Flashcards } from './pages/Flashcards'
 import { Progress } from './pages/Progress'
+import { Mixed } from './pages/Mixed'
 import { Reading } from './pages/Reading'
 import { Training } from './pages/Training'
 import { Vocabulary } from './pages/Vocabulary'
@@ -34,6 +35,7 @@ export default function App() {
     {page === 'home' && <Dashboard data={study.data} />}
     {page === 'course' && <Course key={key} study={study} unitId={query.get('lekcia')} />}
     {page === 'daily' && <Daily study={study} />}
+    {page === 'mixed' && <Mixed study={study} />}
     {(page === 'sentences' || page === 'grammar' || page === 'correction' || page === 'translation') && <Training key={key} mode={page} study={study} initialTopic={query.get('topic')} />}
     {page === 'flashcards' && <Flashcards key={key} study={study} unitId={query.get('lekcia')} />}
     {page === 'reading' && <Reading key={key} study={study} lessonId={query.get('lekcia')} />}

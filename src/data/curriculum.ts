@@ -6,8 +6,11 @@ import { grammar } from './grammar'
 import { readings } from './readings'
 import { sentences } from './sentences'
 import { cards } from './vocabulary'
+import { spiralFoundation } from './spiralFoundation'
+import { spiralAdvanced } from './spiralAdvanced'
 
 const foundationBank = [...grammar, ...sentences, ...corrections]
+const spiralBank = [...spiralFoundation, ...spiralAdvanced]
 
 function foundation(id: string, level: Level, title: string, goal: string, skills: Topic[], activities?: Pick<CourseUnit, 'reading' | 'writing'>): CourseUnit {
   const bank = foundationBank.filter(exercise => exercise.difficulty === level && skills.some(skill => exercise.tags.includes(skill)))
@@ -18,7 +21,7 @@ function foundation(id: string, level: Level, title: string, goal: string, skill
   return { id, level, title, goal, skills, ...activities, requires: [], exercises, minCorrect: skills.length + 1, minSentences: 1 }
 }
 
-export const courseUnits: CourseUnit[] = [
+const syllabus: CourseUnit[] = [
   foundation('a1-grundlagen', 'A1', 'Základná veta', 'Upevni časovanie, druhú pozíciu slovesa a predmet v Akkusative.', ['conjugation', 'word-order', 'akkusativ'], { reading: { id: 'ein-morgen', minCorrect: 0 } }),
   foundation('a2-verbformen', 'A2', 'Slovesné tvary a vetná zátvorka', 'Spoj pomocné alebo modálne sloveso s infinitívom či Partizipom. Zopakuj si aj odlučiteľnú predponu.', ['perfekt-aux', 'participle', 'modal', 'separable'], { reading: { id: 'universitaet', minCorrect: 0 } }),
   foundation('a2-satzbau', 'A2', 'Pády a spájanie viet', 'Rozlíš polohu a smer, spoj vety a vyber správne zvratné zámeno.', ['dativ', 'location', 'subordinate', 'reflexive'], {
@@ -31,6 +34,11 @@ export const courseUnits: CourseUnit[] = [
   }),
   ...advancedUnits,
 ]
+
+export const courseUnits = syllabus.map(unit => ({
+  ...unit,
+  exercises: [...unit.exercises, ...spiralBank.filter(exercise => exercise.unitId === unit.id)],
+}))
 
 const readingById = new Map([...readings, ...advancedReadings].map(reading => [reading.id, reading]))
 
@@ -63,12 +71,17 @@ export function availableUnits(data: StudyData) {
   return courseProgress(data).filter(item => item.missing.length === 0).map(item => item.unit)
 }
 
-export function availableAdvancedExercises(data: StudyData) {
-  return availableUnits(data).filter(unit => unit.level === 'B1' || unit.level === 'B2').flatMap(unit => unit.exercises)
+export function availablePractice(data: StudyData) {
+  const unlocked = new Set(availableUnits(data).map(unit => unit.id))
+  return [
+    ...foundationBank,
+    ...advancedUnits.filter(unit => unlocked.has(unit.id)).flatMap(unit => unit.exercises),
+    ...spiralBank.filter(exercise => unlocked.has(exercise.unitId)),
+  ]
 }
 
 export function availableSentences(data: StudyData) {
-  return [...sentences, ...availableAdvancedExercises(data).filter(exercise => exercise.type === 'sentence')]
+  return availablePractice(data).filter(exercise => exercise.type === 'sentence')
 }
 
 export function availableReadings(data: StudyData) {

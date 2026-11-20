@@ -260,6 +260,9 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--ochre); }
 .daily-outline svg { color: var(--green); }
 .exercise-panel > .muted { margin: 11px 0 17px; font-size: .9rem; }
 
+.mixed-position { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: .875rem; margin-bottom: 12px; }
+.mixed-position span:first-child { color: var(--blue); font-weight: 670; }
+.course-mixed-link { display: inline-block; margin-bottom: 15px; }
 .course-overview-link { text-decoration: none; }
 .course-overview-link:hover { border-color: var(--ochre); }
 .course-levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }

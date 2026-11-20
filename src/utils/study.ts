@@ -1,5 +1,7 @@
-import { topics } from '../types'
-import type { Card, CardReview, DailyPlan, Exercise, Rating, StudyData, Topic, Word } from '../types'
+import { shortResponses } from '../data/shortResponses'
+import { levels, topics } from '../types'
+import { practicePicker } from './spiralPractice'
+import type { Card, CardReview, DailyPlan, Exercise, MixedPractice, Rating, StudyData, Topic, Word } from '../types'
 
 const day = 86_400_000
 
@@ -54,22 +56,51 @@ export function localDate(now = new Date()) {
   return [now.getFullYear(), now.getMonth() + 1, now.getDate()].map(value => String(value).padStart(2, '0')).join('-')
 }
 
-export function makeDailyPlan(data: StudyData, cards: Card[], sentences: Exercise[], grammar: Exercise[], corrections: Exercise[], now = new Date()): DailyPlan {
+export function makeDailyPlan(data: StudyData, cards: Card[], sentences: Exercise[], grammar: Exercise[], corrections: Exercise[], now = new Date(), catalog = [...sentences, ...grammar, ...corrections]): DailyPlan {
   const date = localDate(now)
   const rotation = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / day)
   const weak = new Map(weakTopics(data, now.getTime()).map(({ topic, count }) => [topic, count]))
   const priority = (item: Card | Exercise) => item.tags.reduce((sum, tag) => sum + (weak.get(tag) ?? 0), 0)
 
-  function pick<T extends Card | Exercise>(pool: T[], count: number, extraPriority: (item: T) => number = () => 0) {
-    const shift = rotation % pool.length
-    const rotated = [...pool.slice(shift), ...pool.slice(0, shift)]
-    return rotated.sort((a, b) => priority(b) + extraPriority(b) - priority(a) - extraPriority(a)).slice(0, count).map(item => item.id)
+  function rotate<T>(pool: T[]) {
+    const shift = pool.length ? rotation % pool.length : 0
+    return [...pool.slice(shift), ...pool.slice(0, shift)]
+  }
+
+  const choose = practicePicker(catalog, data.attempts, now.getTime())
+  let previous: MixedPractice | undefined
+  function pickExercises(pool: Exercise[], count: number, repairBank?: Exercise[]) {
+    let remaining = rotate(pool).sort((a, b) => priority(b) - priority(a))
+    const picked: string[] = []
+    for (let index = 0; index < count && remaining.length; index++) {
+      const position = (previous?.position ?? rotation % 4) + 1
+      const repair = index === 0 && repairBank ? choose(repairBank, position, previous) : undefined
+      const next = repair?.reason === 'repair' ? repair : choose(remaining, position, previous)
+      if (!next) break
+      picked.push(next.exerciseId)
+      remaining = remaining.filter(item => item.id !== next.exerciseId)
+      previous = next
+    }
+    return picked
   }
 
   const recall = cards.filter(card => card.mode === 'word' || card.mode === 'phrase')
-  const cardIds = pick(recall, 5, card => !data.reviews[card.id] || data.reviews[card.id].due <= now.getTime() ? 100 : 0)
-  const exerciseIds = [...pick(sentences, 5), ...pick(grammar, 3), ...pick(corrections, 2)]
-  return { date, cardIds, exerciseIds, position: 0 }
+  const cardIds = dueCards(rotate(recall), data.reviews, now.getTime())
+    .concat(rotate(recall.filter(card => data.reviews[card.id]?.due > now.getTime())))
+    .slice(0, 5).map(card => card.id)
+  const exerciseIds = [
+    ...pickExercises(sentences, 5),
+    ...pickExercises(grammar, 3, catalog.filter(item => item.type === 'grammar')),
+    ...pickExercises(corrections, 2),
+  ]
+  const byId = new Map(catalog.map(exercise => [exercise.id, exercise]))
+  const practicedLevel = exerciseIds.reduce((highest, id) => {
+    const exercise = byId.get(id)
+    return exercise ? Math.max(highest, levels.indexOf(exercise.difficulty)) : highest
+  }, 0)
+  const responses = shortResponses[levels[practicedLevel]]
+  const response = responses[rotation % responses.length]
+  return { date, cardIds, exerciseIds, position: 0, response }
 }
 
 export function formatDate(date: number | Date, options: Intl.DateTimeFormatOptions) {

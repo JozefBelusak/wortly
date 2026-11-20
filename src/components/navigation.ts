@@ -1,9 +1,10 @@
-import { BookOpen, ChartNoAxesColumnIncreasing, ClipboardList, FilePenLine, House, Languages, Layers3, NotebookPen, PencilLine, Route, Shapes, SpellCheck } from 'lucide-react'
+import { BookOpen, ChartNoAxesColumnIncreasing, ClipboardList, FilePenLine, House, Languages, Layers3, NotebookPen, PencilLine, Route, Shapes, Shuffle, SpellCheck } from 'lucide-react'
 
 export const navigation = {
   home: { label: 'Prehľad', icon: House },
   course: { label: 'Učebná cesta', icon: Route },
   daily: { label: 'Denné opakovanie', icon: ClipboardList },
+  mixed: { label: 'Miešaný tréning', icon: Shuffle },
   sentences: { label: 'Tvorba viet', icon: PencilLine },
   grammar: { label: 'Gramatika', icon: Shapes },
   flashcards: { label: 'Kartičky', icon: Layers3 },
