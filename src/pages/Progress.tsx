@@ -1,12 +1,12 @@
 import { Crosshair } from 'lucide-react'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
-import { cards } from '../data/vocabulary'
+import { availableCards } from '../data/curriculum'
 import type { StudyData } from '../types'
 import { studyTotals } from '../utils/study'
 
 export function Progress({ data }: { data: StudyData }) {
-  const { words, sentences, weak } = studyTotals(data, cards)
+  const { words, sentences, weak } = studyTotals(data, availableCards(data))
   const correct = data.attempts.filter(attempt => attempt.result === 'correct').length
   return <>
     <PageIntro title="Progres" description="Pozri sa, čo už zvládaš a pri ktorých témach sa chyby opakujú." action={<a className="button button-primary" href={pageLink('daily')}>Denné opakovanie</a>} />

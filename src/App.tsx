@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Layout } from './components/Layout'
 import { navigation, readPage } from './components/navigation'
 import { useStudy } from './hooks/useStudy'
+import { Course } from './pages/Course'
 import { Daily } from './pages/Daily'
 import { Dashboard } from './pages/Dashboard'
 import { Flashcards } from './pages/Flashcards'
@@ -31,11 +32,12 @@ export default function App() {
   const key = `${page}:${query.toString()}`
   return <Layout page={page} saveFailed={study.saveFailed}>
     {page === 'home' && <Dashboard data={study.data} />}
+    {page === 'course' && <Course key={key} study={study} unitId={query.get('lekcia')} />}
     {page === 'daily' && <Daily study={study} />}
     {(page === 'sentences' || page === 'grammar' || page === 'correction' || page === 'translation') && <Training key={key} mode={page} study={study} initialTopic={query.get('topic')} />}
-    {page === 'flashcards' && <Flashcards study={study} />}
+    {page === 'flashcards' && <Flashcards key={key} study={study} unitId={query.get('lekcia')} />}
     {page === 'reading' && <Reading key={key} study={study} lessonId={query.get('lekcia')} />}
-    {page === 'writing' && <Writing study={study} />}
+    {page === 'writing' && <Writing key={key} study={study} assignmentId={query.get('zadanie')} />}
     {page === 'vocabulary' && <Vocabulary study={study} />}
     {page === 'progress' && <Progress data={study.data} />}
   </Layout>

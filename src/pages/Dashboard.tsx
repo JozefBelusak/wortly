@@ -2,8 +2,7 @@ import { BookOpen, CircleCheck, ClipboardList, Crosshair, Layers3, PencilLine, P
 import { PageIntro } from '../components/Layout'
 import { navigation, pageLink } from '../components/navigation'
 import type { Page } from '../components/navigation'
-import { cards } from '../data/vocabulary'
-import { sentences } from '../data/sentences'
+import { availableCards, availableSentences } from '../data/curriculum'
 import type { StudyData } from '../types'
 import { dueCards, localDate, studyTotals, wordCard } from '../utils/study'
 
@@ -15,9 +14,11 @@ const shortcuts = [
 ] as const satisfies readonly { page: Page; icon: typeof Shapes; detail: string; tone: string }[]
 
 export function Dashboard({ data }: { data: StudyData }) {
+  const cards = availableCards(data)
+  const sentences = availableSentences(data)
   const totals = studyTotals(data, cards)
   const due = dueCards([...cards, ...data.words.map(wordCard)], data.reviews).length
-  const level = data.sentenceLevel
+  const level = sentences.some(item => item.difficulty === data.sentenceLevel) ? data.sentenceLevel : ''
   const current = level ? sentences.filter(item => item.difficulty === level) : sentences
   const next = Math.min(data.checkpoints[level ? `sentences/${level}` : 'sentences'] ?? 0, current.length)
   const today = data.daily?.date === localDate() ? data.daily : undefined
@@ -25,13 +26,13 @@ export function Dashboard({ data }: { data: StudyData }) {
 
   return (
     <>
-      <PageIntro title="Prehľad štúdia" description="Precvičuj si nemčinu písaním, čítaním a opravou vlastných chýb." action={<span className="level-label"><BookOpen size={15} /> Úroveň A1 – A2</span>} />
+      <PageIntro title="Prehľad štúdia" description="Precvičuj si nemčinu písaním, čítaním a opravou vlastných chýb." action={<a className="level-label course-overview-link" href={pageLink('course')}><BookOpen size={15} /> Učebná cesta A1 – B2</a>} />
       <section className="dashboard-hero" aria-labelledby="continue-title">
         <div className="hero-art" aria-hidden="true"><img src={`${import.meta.env.BASE_URL}brandenburger-tor.webp`} alt="" fetchPriority="high" /></div>
         <div className="hero-content">
           <p className="eyebrow"><span className="gold-rule" /> Pokračuj v tréningu</p>
           <h2 id="continue-title">Tvorba viet</h2>
-          <p>Prelož vetu zo slovenčiny do nemčiny a precvič si gramatiku v kontexte.</p>
+          <p>{level === 'B1' || level === 'B2' ? 'Poskladaj alebo preformuluj vetu podľa nemeckého zadania.' : 'Prelož vetu zo slovenčiny do nemčiny a precvič si gramatiku v kontexte.'}</p>
           <div className="hero-actions">
             <a className="button button-gold" href={pageLink('sentences')}><Play size={15} /> {next === 0 ? 'Začať tréning' : next === current.length ? 'Otvoriť tréning' : 'Pokračovať'}</a>
             <span>{next < current.length ? `${current[next].difficulty} · Úloha ${next + 1} z ${current.length}` : `${current.length} z ${current.length} úloh prejdených`}</span>

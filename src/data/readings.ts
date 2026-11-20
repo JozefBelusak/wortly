@@ -2,7 +2,7 @@ import type { Exercise, Reading } from '../types'
 
 type Question = [prompt: string, answer: string, facts: string[][], hint: string, explanation: string, alternatives?: string[]]
 
-function lesson(content: Omit<Reading, 'questions'>, questions: Question[]): Reading {
+export function lesson(content: Omit<Reading, 'questions'>, questions: Question[]): Reading {
   return {
     ...content,
     questions: questions.map(([prompt, answer, readingFacts, hint, explanation, acceptedAnswers = []], index): Exercise => ({

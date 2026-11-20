@@ -7,6 +7,13 @@ import type { Exercise as ExerciseModel } from '../types'
 import { gradeAnswer } from '../utils/grade'
 import type { Grade } from '../utils/grade'
 
+function highlightSubject(text: string, subject: string, label: string) {
+  const start = text.indexOf(subject)
+  if (start === -1) return text
+
+  return <>{text.slice(0, start)}<mark lang="de" title={label}>{subject}</mark>{text.slice(start + subject.length)}</>
+}
+
 export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloha' }: {
   exercise: ExerciseModel; record: Study['record']; onNext: () => void; nextLabel?: string
 }) {
@@ -22,7 +29,9 @@ export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloh
   const done = correct || revealed
   const toSlovak = exercise.type === 'reverse'
   const blank = exercise.prompt.includes('___')
-  const promptLanguage = exercise.type === 'sentence' || (exercise.type === 'grammar' && !blank) ? undefined : 'de'
+  const { glossary, subjectChange } = exercise.support ?? {}
+  const [subjectSentence, subjectInstruction] = subjectChange ? exercise.prompt.split(' → ', 2) : []
+  const promptLanguage = exercise.promptLanguage ?? (exercise.type === 'sentence' || (exercise.type === 'grammar' && !blank) ? undefined : 'de')
 
   function submit(event: FormEvent) {
     event.preventDefault()
@@ -56,7 +65,16 @@ export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloh
   return (
     <article className="panel exercise-panel">
       <div className="exercise-topic"><span className="tag">{exercise.difficulty}</span><span>{topics[exercise.tags[0]]}</span></div>
-      <p className="exercise-prompt" lang={promptLanguage}>{exercise.prompt}</p>
+      <p className="exercise-prompt" lang={promptLanguage}>
+        {subjectChange && subjectInstruction ? <>
+          <span lang="de">{highlightSubject(subjectSentence, subjectChange.from, 'Pôvodný podmet')}</span>
+          <span className="exercise-instruction">{highlightSubject(subjectInstruction, subjectChange.to, 'Nový podmet')}</span>
+        </> : exercise.prompt}
+      </p>
+      {glossary && glossary.length > 0 && <div className="exercise-glossary">
+        <p>Slová z úlohy</p>
+        <dl>{glossary.map(([german, slovak]) => <div key={german}><dt lang="de">{german}</dt><dd>{slovak}</dd></div>)}</dl>
+      </div>}
       <form ref={form} onSubmit={submit}>
         <label className="field-label" htmlFor="answer">{blank ? 'Doplň chýbajúci výraz' : toSlovak ? 'Tvoja odpoveď po slovensky' : 'Tvoja odpoveď po nemecky'}</label>
         <textarea id="answer" ref={input} value={answer} onChange={event => setAnswer(event.target.value)} onKeyDown={handleKey} rows={blank ? 2 : 3} placeholder={blank ? 'Napíš chýbajúci výraz…' : 'Napíš svoju odpoveď…'} readOnly={done} spellCheck={false} autoCapitalize="off" lang={toSlovak ? 'sk' : 'de'} />

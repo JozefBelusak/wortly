@@ -6,7 +6,7 @@ import { navigation, pageLink } from './navigation'
 import type { Page } from './navigation'
 
 const groups: { label: string; pages: Page[] }[] = [
-  { label: 'Učebňa', pages: ['home', 'daily'] },
+  { label: 'Učebňa', pages: ['home', 'course', 'daily'] },
   { label: 'Precvičovanie', pages: ['sentences', 'grammar', 'flashcards', 'reading', 'correction', 'translation', 'writing'] },
   { label: 'Môj zošit', pages: ['vocabulary', 'progress'] },
 ]

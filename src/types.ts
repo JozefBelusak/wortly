@@ -14,17 +14,32 @@ export const topics = {
   possessive: 'Privlastňovacie zámená',
   pronouns: 'Osobné zámená',
   preterite: 'Präteritum',
+  infinitive: 'Infinitiv mit zu',
+  relative: 'Relativsätze',
+  adjectives: 'Adjektivendungen',
+  temporal: 'Časové vedľajšie vety',
+  subjunctive: 'Konjunktiv II',
+  passive: 'Passiv',
+  connectors: 'Spojky a argumentácia',
+  prepositions: 'Pokročilé predložky',
   vocabulary: 'Slovná zásoba',
 } as const
 
 export type Topic = keyof typeof topics
-export type Level = 'A1' | 'A2'
+export const levels = ['A1', 'A2', 'B1', 'B2'] as const
+export type Level = typeof levels[number]
 export type ExerciseType = 'sentence' | 'grammar' | 'correction' | 'reading' | 'reverse'
+
+export interface ExerciseSupport {
+  glossary: [german: string, slovak: string][]
+  subjectChange?: { from: string; to: string }
+}
 
 export interface Exercise {
   id: string
   type: ExerciseType
   prompt: string
+  promptLanguage?: 'sk' | 'de'
   answer: string
   acceptedAnswers: string[]
   hint: string
@@ -32,6 +47,7 @@ export interface Exercise {
   tags: Topic[]
   difficulty: Level
   readingFacts?: string[][]
+  support?: ExerciseSupport
 }
 
 export const cardModes = {
@@ -48,6 +64,7 @@ export interface Card {
   id: string
   mode: CardMode
   front: string
+  frontLanguage?: 'de' | 'sk'
   back: string
   tags: Topic[]
   example?: string
@@ -83,6 +100,7 @@ export interface Reading {
   minutes: number
   paragraphs: string[]
   glossary: Record<string, string>
+  glossaryLanguage?: 'sk' | 'de'
   questions: Exercise[]
 }
 
@@ -103,10 +121,35 @@ export interface Attempt {
 
 export interface WritingEntry {
   id: string
+  assignmentId?: string
   prompt: string
+  promptLanguage?: 'sk' | 'de'
   text: string
   checked: string[]
   at: number
+}
+
+export interface CourseWriting {
+  instruction: string
+  language?: 'sk'
+  minWords: number
+  checklist: string[]
+}
+
+export interface CourseUnit {
+  id: string
+  level: Level
+  title: string
+  goal: string
+  requires: string[]
+  exercises: Exercise[]
+  skills?: Topic[]
+  guide?: { rule: string; example: string; language?: 'de' }
+  minCorrect: number
+  minSentences?: number
+  vocabulary?: Card[]
+  reading?: { id: string; minCorrect: number }
+  writing?: CourseWriting
 }
 
 export interface DailyPlan {

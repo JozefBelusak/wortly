@@ -2,7 +2,7 @@ import { ChevronDown, Layers3 } from 'lucide-react'
 import { useState } from 'react'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
-import { cards } from '../data/vocabulary'
+import { availableCards, availableUnits } from '../data/curriculum'
 import { ExercisePosition } from '../features/Exercise'
 import { RecallCard } from '../features/RecallCard'
 import type { Study } from '../hooks/useStudy'
@@ -10,11 +10,13 @@ import { cardModes } from '../types'
 import type { CardMode } from '../types'
 import { dueCards, formatDate, wordCard } from '../utils/study'
 
-export function Flashcards({ study }: { study: Study }) {
+export function Flashcards({ study, unitId }: { study: Study; unitId: string | null }) {
   const [mode, setMode] = useState('')
   const [scope, setScope] = useState('due')
   const [completed, setCompleted] = useState<string[]>([])
-  const pool = [...cards, ...study.data.words.map(wordCard)].filter(card => !mode || card.mode === mode)
+  const unit = availableUnits(study.data).find(item => item.id === unitId && item.vocabulary?.length)
+  const cards = unit?.vocabulary ?? [...availableCards(study.data), ...study.data.words.map(wordCard)]
+  const pool = cards.filter(card => !mode || card.mode === mode)
   const scheduled = dueCards(pool, study.data.reviews)
   const available = (scope === 'due' ? scheduled : pool).filter(card => !completed.includes(card.id))
   const card = available[0]
@@ -24,7 +26,8 @@ export function Flashcards({ study }: { study: Study }) {
   }))
 
   return <>
-    <PageIntro title="Kartičky" description="Najskôr si odpoveď vybav, potom ju odhaľ a ohodnoť si pamäť." />
+    {unit && <a className="text-link back-link" href={pageLink('course', { lekcia: unit.id })}>Späť na lekciu</a>}
+    <PageIntro title={unit ? 'Kartičky · ' + unit.title : 'Kartičky'} description="Najskôr si odpoveď vybav, potom ju odhaľ a ohodnoť si pamäť." />
     <div className="training-layout">
       <section className="training-main">
         <div className="toolbar">

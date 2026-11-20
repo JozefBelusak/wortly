@@ -1,5 +1,6 @@
-import { Eye, RotateCcw } from 'lucide-react'
+import { Eye, RotateCcw, Square, Volume2 } from 'lucide-react'
 import { useState } from 'react'
+import { useGermanSpeech } from '../hooks/useGermanSpeech'
 import { cardModes } from '../types'
 import type { Card, Rating } from '../types'
 
@@ -12,13 +13,30 @@ const ratings: [Rating, string, string][] = [
 
 export function RecallCard({ card, onRate }: { card: Card; onRate: (rating: Rating) => void }) {
   const [revealed, setRevealed] = useState(false)
+  const { playing, message, speak } = useGermanSpeech()
   return <article className="panel recall-card">
     <div className="exercise-topic"><span className="tag">{cardModes[card.mode]}</span></div>
-    <p className="recall-label">{card.mode === 'verb' || card.mode === 'transformation' ? 'Vybav si nemecký tvar' : 'Povedz po nemecky'}</p>
-    <h2>{card.front}</h2>
+    <p className="recall-label">{card.mode === 'verb' || card.mode === 'transformation' ? 'Vybav si nemecký tvar' : card.frontLanguage === 'de' ? 'Welcher Ausdruck passt?' : 'Povedz po nemecky'}</p>
+    <h2 lang={card.frontLanguage}>{card.front}</h2>
     {revealed ? <>
-      <div className="recall-answer" aria-live="polite"><p lang="de">{card.back}</p>{card.example && <small>{card.example}</small>}</div>
+      <div className="recall-answer">
+        <div className="recall-line">
+          <p lang="de">{card.back}</p>
+          <SpeechButton label="výraz" playing={playing === 'answer'} onClick={() => speak('answer', card.back)} />
+        </div>
+        {card.example && <div className="recall-line recall-example">
+          <small lang={card.example.startsWith('Množné číslo:') ? undefined : 'de'}>{card.example}</small>
+          <SpeechButton label={card.example.startsWith('Množné číslo:') ? 'množné číslo' : 'vetu'} playing={playing === 'example'} onClick={() => speak('example', card.example!)} />
+        </div>}
+        {message && <small className="speech-message" role="status">{message}</small>}
+      </div>
       <fieldset className="rating-field"><legend>Ako ľahko si si odpoveď vybavil?</legend><div className="rating-grid">{ratings.map(([value, label, delay]) => <button key={value} className="button button-secondary" onClick={() => onRate(value)}><strong>{value === 'again' && <RotateCcw size={14} />} {label}</strong><span>{delay}</span></button>)}</div></fieldset>
     </> : <button className="button button-primary" onClick={() => setRevealed(true)}><Eye size={17} /> Odhaľ odpoveď</button>}
   </article>
+}
+
+function SpeechButton({ label, playing, onClick }: { label: string; playing: boolean; onClick: () => void }) {
+  return <button className="speech-button" type="button" onClick={onClick}>
+    {playing ? <Square size={15} /> : <Volume2 size={17} />} {playing ? 'Zastaviť' : 'Prehrať'} {label}
+  </button>
 }

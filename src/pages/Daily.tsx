@@ -3,10 +3,10 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
+import { availableAdvancedExercises, availableCards } from '../data/curriculum'
 import { corrections } from '../data/corrections'
 import { grammar, transformations } from '../data/grammar'
 import { sentences } from '../data/sentences'
-import { cards } from '../data/vocabulary'
 import { Exercise, ExercisePosition } from '../features/Exercise'
 import { RecallCard } from '../features/RecallCard'
 import type { Study } from '../hooks/useStudy'
@@ -14,7 +14,7 @@ import { localDate, makeDailyPlan, weakTopics, wordCard } from '../utils/study'
 
 const sections = [
   { label: 'Vybavenie slov a fráz', count: 5 },
-  { label: 'Preklad do nemčiny', count: 5 },
+  { label: 'Tvorba a preklad viet', count: 5 },
   { label: 'Gramatické tvary', count: 3 },
   { label: 'Oprava chybných viet', count: 2 },
   { label: 'Vlastná veta', count: 1 },
@@ -24,12 +24,13 @@ const exercises = [...sentences, ...grammar, ...corrections]
 
 export function Daily({ study }: { study: Study }) {
   const { data, setData } = study
-  const pool = [...cards, ...data.words.map(wordCard)]
+  const advanced = availableAdvancedExercises(data)
+  const pool = [...availableCards(data), ...data.words.map(wordCard)]
   const date = localDate()
   const plan = data.daily?.date === date ? data.daily : undefined
   const position = plan?.position ?? 0
   const card = plan && pool.find(item => item.id === plan.cardIds[position])
-  const exercise = plan && exercises.find(item => item.id === plan.exerciseIds[position - plan.cardIds.length])
+  const exercise = plan && [...exercises, ...advanced].find(item => item.id === plan.exerciseIds[position - plan.cardIds.length])
   const weak = weakTopics(data).slice(0, 3)
 
   function advance() {
@@ -42,7 +43,7 @@ export function Daily({ study }: { study: Study }) {
     <PageIntro title="Denné opakovanie" description="Krátky tréning z piatich typov úloh podľa tém, v ktorých sa ti chyby opakujú." action={<span className="level-label"><Clock3 size={16} /> 10–15 minút</span>} />
     <div className="training-layout">
       <section className="training-main">
-        {!plan ? <div className="panel finish-panel daily-start"><ClipboardList size={30} /><h2>Dnešný tréning</h2><p>Pripravíme 16 úloh. Keď sa sem dnes vrátiš, pokračuješ pri poslednej úlohe.</p><button className="button button-primary" onClick={() => setData(current => ({ ...current, daily: makeDailyPlan(current, pool, sentences, transformations, corrections) }))}>Začať opakovanie</button></div>
+        {!plan ? <div className="panel finish-panel daily-start"><ClipboardList size={30} /><h2>Dnešný tréning</h2><p>Pripravíme 16 úloh. Keď sa sem dnes vrátiš, pokračuješ pri poslednej úlohe.</p><button className="button button-primary" onClick={() => setData(current => ({ ...current, daily: makeDailyPlan(current, pool, [...sentences, ...advanced.filter(item => item.type === 'sentence')], [...transformations, ...advanced.filter(item => item.type === 'grammar' && !item.prompt.includes('___'))], corrections) }))}>Začať opakovanie</button></div>
           : position >= total ? <div className="panel finish-panel"><CircleCheck size={30} /><h2>Dnešné opakovanie je hotové</h2><p>Prešiel si všetkých {total} úloh. Zajtra tu nájdeš ďalší výber.</p><a className="button button-primary" href={pageLink('progress')}>Zobraziť progres</a></div>
             : <><ExercisePosition position={position + 1} total={total} />
               {card ? <RecallCard key={card.id} card={card} onRate={rating => { study.rate(card.id, rating); advance() }} />
