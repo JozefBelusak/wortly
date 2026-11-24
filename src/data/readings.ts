@@ -26,7 +26,7 @@ export const readings = [
     paragraphs: [
       'Lea wohnt in Bratislava. Sie arbeitet in einem kleinen Café in der Stadt. Normalerweise steht sie um sechs Uhr auf. Am Morgen trinkt sie zu Hause einen Kaffee und isst ein Brot. Um sieben Uhr fährt sie mit dem Bus zur Arbeit. Die Fahrt dauert zwanzig Minuten.',
       'Im Café arbeitet Lea mit ihrer Freundin Nina. Nina kommt meistens um acht Uhr. Um zwölf Uhr haben sie eine Pause. Sie essen zusammen und sprechen über das Wochenende. Am Nachmittag kommen viele Leute ins Café. Lea macht Kaffee und Nina bringt den Kaffee an die Tische.',
-      'Nach der Arbeit kauft Lea manchmal ein. Heute geht sie aber direkt nach Hause, weil sie müde ist. Am Abend kocht sie eine Suppe und sieht ein bisschen fern.',
+      'Nach der Arbeit kauft Lea manchmal ein. Heute geht sie aber direkt nach Hause, weil sie müde ist. Am Abend kocht sie eine Suppe und sieht ein bisschen fern. Danach geht Lea ins Bett.',
     ],
     glossary: { Fahrt: 'jazda, cesta dopravným prostriedkom', dauert: 'trvá', Pause: 'prestávka' },
   }, [
@@ -56,7 +56,7 @@ export const readings = [
     paragraphs: [
       'Mila studiert in Wien. Gestern ist sie früh aufgestanden, weil sie um acht Uhr an der Universität sein musste. Sie ist zuerst mit der Straßenbahn gefahren. An der Haltestelle hat sie ihren Freund Ben getroffen. Ben studiert auch in Wien, aber er lernt kein Deutsch. Er spricht schon sehr gut Deutsch.',
       'Am Vormittag hat Mila in der Bibliothek gearbeitet. Nach der Mittagspause hat sie einen Deutschkurs besucht. Die Lehrerin hat gesagt, dass jeder fünf Sätze über seinen Tag schreiben soll. Mila hat zuerst über ihre Familie geschrieben. Danach hat sie sich an den Morgen erinnert und einen Satz über Ben geschrieben.',
-      'Am Abend wollte Mila noch einkaufen. Der Supermarkt war schon geschlossen. Deshalb hat sie bei Ben gegessen.',
+      '„Ich hatte einen vollen Tag“, dachte Mila. Am Abend wollte sie noch einkaufen. Der Supermarkt war schon geschlossen. Deshalb hat sie bei Ben gegessen.',
     ],
     glossary: { Haltestelle: 'zastávka', Bibliothek: 'knižnica', geschlossen: 'zatvorený' },
   }, [
@@ -84,11 +84,11 @@ export const readings = [
   lesson({
     id: 'fahrschule', title: 'Meine erste Fahrstunde', description: 'Prvé jazdy v autoškole a malý pokrok.', difficulty: 'A2', minutes: 4,
     paragraphs: [
-      'Ich mache gerade meinen Führerschein. Letzten Mittwoch hatte ich meine erste Fahrstunde. Ich musste um vier Uhr bei der Fahrschule sein. Mein Fahrlehrer heißt Herr Weber. Er war sehr ruhig und hat mir zuerst das Auto gezeigt. Danach bin ich langsam auf einem Parkplatz gefahren.',
+      'Ich mache gerade meinen Führerschein. Letzten Mittwoch hatte ich meine erste Fahrstunde. Vor der Fahrstunde war ich aufgeregt. Ich musste um vier Uhr bei der Fahrschule sein. Mein Fahrlehrer heißt Herr Weber. Er war sehr ruhig und hat mir zuerst das Auto gezeigt. Danach bin ich langsam auf einem Parkplatz gefahren.',
       'Am Anfang war ich nervös, weil ich noch nie Auto gefahren bin. Herr Weber hat gesagt, dass ich mir Zeit lassen kann. Zuerst bin ich nur geradeaus gefahren. Danach durfte ich in eine kleine Straße fahren. Dort waren nicht viele Autos. Wenn ich etwas nicht verstanden habe, habe ich Herrn Weber gefragt.',
       'Nach der Stunde habe ich mich besser gefühlt. Ich bin mit dem Bus nach Hause gefahren und habe meiner Schwester von der Stunde erzählt. Nächste Woche habe ich wieder eine Fahrstunde.',
     ],
-    glossary: { Führerschein: 'vodičský preukaz', Fahrstunde: 'praktická jazda v autoškole', geradeaus: 'rovno, priamo' },
+    glossary: { Führerschein: 'vodičský preukaz', Fahrstunde: 'praktická jazda v autoškole', geradeaus: 'rovno, priamo', aufgeregt: 'nervózny pred jazdou' },
   }, [
     ['An welchem Tag war die erste Fahrstunde?', 'Die erste Fahrstunde war letzten Mittwoch.', [['mittwoch']], 'Prvá časová informácia je v druhom súvetí.', 'Präteritum od sein je v tretej osobe war.', [['an welchem Tag', 'v ktorý deň'], ['die Fahrstunde', 'jazda v autoškole']], ['Sie war letzten Mittwoch.', 'Die erste Fahrstunde war am Mittwoch.', 'Letzten Mittwoch war die erste Fahrstunde.']],
     ['Wie heißt der Fahrlehrer?', 'Der Fahrlehrer heißt Herr Weber.', [['weber']], 'V prvom odseku je meno učiteľa.', 'Pri er používame tvar heißt.', [['wie heißt ...?', 'ako sa volá ...?'], ['der Fahrlehrer', 'inštruktor autoškoly']], ['Er heißt Herr Weber.', 'Der Fahrlehrer heißt Weber.']],

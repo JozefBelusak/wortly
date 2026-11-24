@@ -1,4 +1,5 @@
 import { BookOpen, Check, CircleCheck, LockKeyhole, NotebookPen } from 'lucide-react'
+import { ContextText } from '../components/ContextText'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
 import { availableReadings, courseProgress } from '../data/curriculum'
@@ -60,8 +61,8 @@ function UnitPage({ study, current, progress, next }: { study: Study; current: C
         {current.complete && next && <a className="button button-primary course-next" href={unitLink(next.unit.id)}><CircleCheck size={17} /> Ďalšia lekcia</a>}
         {unit.guide && <details className="panel course-guide" open>
           <summary>Pravidlo a príklad</summary>
-          <p lang={unit.guide.language}>{unit.guide.rule}</p>
-          <p lang="de" className="course-example">{unit.guide.example}</p>
+          <p lang={unit.guide.language}><ContextText text={unit.guide.rule} mixed={unit.guide.language !== 'de'} /></p>
+          <p lang="de" className="course-example"><ContextText text={unit.guide.example} /></p>
         </details>}
         {exercise ? <>
           <ExercisePosition position={position + 1} total={unit.exercises.length} />

@@ -1,5 +1,6 @@
 import { BookOpen, CircleCheck, LockKeyhole, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
+import { ContextText } from '../components/ContextText'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
 import { guidedAccess, nextGuidedLesson } from '../data/curriculum'
@@ -122,8 +123,8 @@ function LessonPage({ study, lesson }: { study: Study; lesson: Lesson }) {
             </> : <>
               {step.kind === 'transfer' && <div className="section-title"><h2>Použi to s tým, čo už vieš</h2></div>}
               {step.kind === 'reading' && <section className="panel mini-reading">
-                <h2 lang="de">{lesson.reading.title}</h2>
-                {lesson.reading.paragraphs.map(paragraph => <p lang="de" key={paragraph}>{paragraph}</p>)}
+                <h2 lang="de"><ContextText text={lesson.reading.title} /></h2>
+                {lesson.reading.paragraphs.map(paragraph => <p lang="de" key={paragraph}><ContextText text={paragraph} /></p>)}
               </section>}
               <Exercise study={study} exercise={step.exercise} key={step.exercise.id} onNext={move} nextLabel={step.kind === 'reading' ? 'Prejsť na checkpoint' : 'Pokračovať v lekcii'} />
             </>}

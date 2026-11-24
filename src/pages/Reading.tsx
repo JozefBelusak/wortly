@@ -1,5 +1,6 @@
 import { BookOpen, CircleCheck, Clock3 } from 'lucide-react'
-import { Fragment, useState } from 'react'
+import { useMemo } from 'react'
+import { ContextText } from '../components/ContextText'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
 import { availableReadings, availableUnits } from '../data/curriculum'
@@ -27,9 +28,9 @@ export function Reading({ study, lessonId }: { study: Study; lessonId: string | 
 }
 
 function ReadingLesson({ lesson, study, unitId }: { lesson: Lesson; study: Study; unitId?: string }) {
-  const [definition, setDefinition] = useState<string>()
   const terms = Object.keys(lesson.glossary)
-  const pattern = terms.length ? new RegExp(`(?<!\\p{L})(${Object.keys(lesson.glossary).join('|')})(?!\\p{L})`, 'giu') : null
+  const hints = useMemo(() => Object.entries(lesson.glossary).map(([term, meaning]) =>
+    [term, meaning, lesson.glossaryLanguage] as const), [lesson.glossary, lesson.glossaryLanguage])
   const key = `reading/${lesson.id}`
   const position = study.data.checkpoints[key] ?? 0
   const question = lesson.questions[position]
@@ -40,17 +41,14 @@ function ReadingLesson({ lesson, study, unitId }: { lesson: Lesson; study: Study
       {lesson.questions[0]?.lessonId && <a className="text-link back-link" href={pageLink('course', { tema: lesson.questions[0].lessonId })}>Späť k téme</a>}
       {unitId && <a className="text-link back-link" href={pageLink('course', { lekcia: unitId })}>Späť na lekciu</a>}
     </div>
-    <PageIntro title={lesson.title} description={lesson.description} action={<span className="level-label">{lesson.difficulty} · {lesson.minutes} min čítania</span>} />
+    <PageIntro title={<ContextText text={lesson.title} />} description={<ContextText text={lesson.description}
+      mixed={!!lesson.questions[0]?.lessonId || (lesson.difficulty !== 'B1' && lesson.difficulty !== 'B2')} />} action={<span className="level-label">{lesson.difficulty} · {lesson.minutes} min čítania</span>} />
     <div className="reading-column">
       <article className="panel reading-text">
-        {pattern && <p className="glossary-instruction">Kliknutím na podčiarknuté slovo otvoríš jeho význam.</p>}
+        <p className="glossary-instruction">Klikni na slovo alebo označ frázu.</p>
         <div lang="de">{lesson.paragraphs.map(paragraph =>
-          <p key={paragraph}>{(pattern ? paragraph.split(pattern) : [paragraph]).map((part, index) => {
-            const word = terms.find(term => term.toLowerCase() === part.toLowerCase())
-            return word ? <button key={index} type="button" className="glossary-word" aria-pressed={word === definition} onClick={() => setDefinition(word === definition ? undefined : word)}>{part}</button> : <Fragment key={index}>{part}</Fragment>
-          })}</p>,
+          <p key={paragraph}><ContextText text={paragraph} hints={hints} highlight={terms} /></p>,
         )}</div>
-        {definition && <p className="glossary-definition" role="status"><strong lang="de">{definition}</strong> – <span lang={lesson.glossaryLanguage}>{lesson.glossary[definition]}</span></p>}
       </article>
       <div className="section-title"><h2>Porozumenie textu</h2></div>
       {question ? <>

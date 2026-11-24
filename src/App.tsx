@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ContextVocabularyProvider } from './components/ContextVocabulary'
 import { Layout } from './components/Layout'
 import { navigation, readPage } from './components/navigation'
 import { useStudy } from './hooks/useStudy'
@@ -33,7 +34,7 @@ export default function App() {
   }, [page])
 
   const key = `${page}:${query.toString()}`
-  return <Layout page={page} saveFailed={study.saveFailed}>
+  return <ContextVocabularyProvider study={study} routeKey={key}><Layout page={page} saveFailed={study.saveFailed}>
     {page === 'home' && <Dashboard data={study.data} />}
     {page === 'course' && (query.has('bloky') || query.has('lekcia')
       ? <Course key={key} study={study} unitId={query.get('lekcia')} />
@@ -47,5 +48,5 @@ export default function App() {
     {page === 'writing' && <Writing key={key} study={study} assignmentId={query.get('zadanie')} />}
     {page === 'vocabulary' && <Vocabulary study={study} />}
     {page === 'progress' && <Progress data={study.data} />}
-  </Layout>
+  </Layout></ContextVocabularyProvider>
 }

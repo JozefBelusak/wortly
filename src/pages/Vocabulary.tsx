@@ -1,6 +1,7 @@
 import { BookOpen, ChevronDown, Pencil, Plus, Search, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { ContextText } from '../components/ContextText'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
 import type { Study } from '../hooks/useStudy'
@@ -29,7 +30,8 @@ export function Vocabulary({ study }: { study: Study }) {
         <div><span className="word-kind">{wordKinds[word.kind]}</span><h2><span lang="de">{wordHeading(word)}</span> <span>– {word.slovak}</span></h2>
           {word.kind === 'noun' && word.plural && <p>Množné číslo: <span lang="de">{word.plural}</span></p>}
           {word.kind === 'verb' && (word.present || word.perfect) && <p lang="de">{[word.present, word.perfect].filter(Boolean).join(' · ')}</p>}
-          {word.example && <p className="example" lang="de">{word.example}</p>}
+          {word.contextMeaning && word.contextMeaning !== word.slovak && <p>{word.contextMeaning}</p>}
+          {word.example && <p className="example" lang="de"><ContextText text={word.example} /></p>}
         </div>
         <div className="word-actions">
           <label className="learned-label"><input type="checkbox" checked={word.learned} onChange={event => { const learned = event.target.checked; study.setData(current => ({ ...current, words: current.words.map(item => item.id === word.id ? { ...item, learned } : item) })) }} /> Zvládnuté</label>

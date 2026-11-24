@@ -6,6 +6,7 @@ import { guidedLessons } from '../data/lessons/catalog'
 import type { RuleReference } from '../data/lessons/rules'
 import { RuleDrill } from '../features/Exercise'
 import type { Study } from '../hooks/useStudy'
+import { vocabularyStatus } from '../utils/contextVocabulary'
 import { lessonStatus, ruleMisses } from '../utils/lessonProgress'
 import { weakTopics } from '../utils/study'
 import { learnLink } from './Learn'
@@ -18,6 +19,10 @@ export function Review({ study }: { study: Study }) {
   }))).filter(item => item.misses >= 2).sort((a, b) => b.misses - a.misses)
   const due = guidedLessons.filter(lesson => data.lessons?.[lesson.id]?.learnedAt && lessonStatus(lesson, data) === 'review')
   const weak = weakTopics(data)
+  const repeatedWords = Object.entries(data.vocabularyExposure ?? {})
+    .filter(([id, item]) => item.opens >= 3 && item.translation && vocabularyStatus(data, id, data.words.find(word => word.contextEntryId === id)) !== 'known')
+    .sort(([, a], [, b]) => b.opens - a.opens || b.lastSeen - a.lastSeen)
+    .slice(0, 8)
 
   function complete() {
     const lesson = current?.lesson
@@ -43,6 +48,13 @@ export function Review({ study }: { study: Study }) {
       {due.length > 0 && <section className="panel topic-panel review-followup">
         <div className="section-title"><h2>Lekcie na zopakovanie</h2></div>
         <ul className="review-rules">{due.map(lesson => <li key={lesson.id}><strong>{lesson.title}</strong><a className="button button-secondary" href={learnLink(lesson.id)}>Otvoriť lekciu</a></li>)}</ul>
+      </section>}
+      {repeatedWords.length > 0 && <section className="panel topic-panel review-followup">
+        <div className="section-title"><h2>Často vyhľadávané slovíčka</h2></div>
+        <ul className="review-rules">{repeatedWords.map(([id, item]) => <li key={id}>
+          <div><strong lang="de">{item.term}</strong><small>{item.translation}</small></div>
+          <small>{item.opens}× otvorené</small>
+        </li>)}</ul>
       </section>}
       {weak.length > 0 && <section className="panel topic-panel review-followup">
         <div className="section-title"><h2>Precvičiť podľa témy</h2></div>

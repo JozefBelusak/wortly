@@ -1,6 +1,7 @@
 import { ChevronDown, NotebookPen } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { ContextText } from '../components/ContextText'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
 import { availableWritingUnits, wordCount } from '../data/curriculum'
@@ -45,7 +46,7 @@ export function Writing({ study, assignmentId }: { study: Study; assignmentId: s
           <optgroup label="Vlastné precvičovanie">{writingPrompts.map((item, index) => <option value={index} key={item}>{promptNames[index]}</option>)}</optgroup>
           {assignments.length > 0 && <optgroup label="Učebná cesta">{assignments.map(item => <option value={item.id} key={item.id}>{item.level} · {item.title}</option>)}</optgroup>}
         </select><ChevronDown size={16} /></span>
-        <h2 lang={assignmentLanguage}>{prompt}</h2>
+        <h2 lang={assignmentLanguage}><ContextText text={prompt} mixed={assignmentLanguage !== 'de'} /></h2>
         <label className="field-label" htmlFor="writing-text">Tvoj text po nemecky</label>
         <textarea id="writing-text" rows={9} value={text} onChange={event => { setText(event.target.value); setStatus('') }} lang="de" placeholder="Začni prvou vetou…" spellCheck={false} />
         <div className="writing-actions"><span>Počet slov: {words}{assignment && ' / ' + assignment.minWords + ' požadovaných'}</span><button className="button button-primary" disabled={!canSave}>Uložiť text</button></div>
@@ -58,7 +59,7 @@ export function Writing({ study, assignmentId }: { study: Study; assignmentId: s
       <div className="section-title"><h2><NotebookPen size={20} /> História textov</h2></div>
       {study.data.writing.length ? study.data.writing.map(entry => <details className="panel saved-text" key={entry.id}>
         <summary><span lang={entry.promptLanguage}>{entry.prompt}</span><time>{formatDate(entry.at, { dateStyle: 'medium' })}</time></summary>
-        <p lang="de">{entry.text}</p>
+        <p lang="de"><ContextText text={entry.text} /></p>
         {entry.checked.length > 0 && <div className="tag-list">{entry.checked.map(item => <span className="tag" key={item}>{item}</span>)}</div>}
       </details>) : <p className="muted">Tu sa zobrazia tvoje uložené texty.</p>}
     </section>

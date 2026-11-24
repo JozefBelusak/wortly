@@ -81,6 +81,6 @@ export function Layout({ page, saveFailed, children }: { page: Page; saveFailed:
   )
 }
 
-export function PageIntro({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function PageIntro({ title, description, action }: { title: ReactNode; description?: ReactNode; action?: ReactNode }) {
   return <header className="page-intro"><div><h1>{title}</h1>{description && <p>{description}</p>}</div>{action}</header>
 }

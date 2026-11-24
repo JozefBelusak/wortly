@@ -1,6 +1,7 @@
 import { BookOpen, CircleCheck, ClipboardList, Clock3 } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { ContextText } from '../components/ContextText'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
 import { availableCards, availablePractice } from '../data/curriculum'
@@ -79,5 +80,5 @@ function DailySentence({ response, onSave }: { response: ShortResponse; onSave: 
     event.preventDefault()
     if (text.trim()) onSave(text.trim())
   }
-  return <form className="panel exercise-panel" onSubmit={submit}><p className="exercise-prompt" lang={response.language}>{response.prompt}</p><label className="field-label" htmlFor="daily-writing">Tvoja veta po nemecky</label><textarea id="daily-writing" lang="de" rows={3} value={text} onChange={event => setText(event.target.value)} placeholder="Napíš vlastnú vetu…" /><p className="muted" lang={response.language}>{response.note}</p><button className="button button-primary" disabled={!text.trim()}>Uložiť vetu a dokončiť</button></form>
+  return <form className="panel exercise-panel" onSubmit={submit}><p className="exercise-prompt" lang={response.language}><ContextText text={response.prompt} mixed={response.language !== 'de'} /></p><label className="field-label" htmlFor="daily-writing">Tvoja veta po nemecky</label><textarea id="daily-writing" lang="de" rows={3} value={text} onChange={event => setText(event.target.value)} placeholder="Napíš vlastnú vetu…" /><p className="muted" lang={response.language}><ContextText text={response.note} mixed={response.language !== 'de'} /></p><button className="button button-primary" disabled={!text.trim()}>Uložiť vetu a dokončiť</button></form>
 }

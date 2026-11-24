@@ -104,6 +104,15 @@ export interface Word {
   perfect: string
   example: string
   learned: boolean
+  contextEntryId?: string
+  contextMeaning?: string
+}
+
+export interface VocabularyExposure {
+  term: string
+  translation: string
+  opens: number
+  lastSeen: number
 }
 
 export interface Reading {
@@ -207,6 +216,7 @@ export interface StudyData {
   attempts: Attempt[]
   reviews: Record<string, CardReview>
   words: Word[]
+  vocabularyExposure?: Record<string, VocabularyExposure>
   writing: WritingEntry[]
   checkpoints: Record<string, number>
   sentenceLevel?: Level | ''
