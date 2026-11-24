@@ -291,6 +291,55 @@ progress::-moz-progress-bar { border-radius: 4px; background: var(--ochre); }
 .mastery-indicator { width: 17px; height: 17px; flex-shrink: 0; display: grid; place-items: center; border: 1px solid var(--strong-border); border-radius: 4px; margin-top: 2px; }
 .mastery-done .mastery-indicator { background: var(--green-bg); border-color: transparent; }
 .course-next { margin-bottom: 13px; }
+.learn-tools { margin-bottom: 17px; }
+.learn-list { display: grid; gap: 7px; }
+.learned-topic { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 12px; padding: 12px 14px; text-decoration: none; }
+.learned-topic:hover { border-color: var(--focus); }
+.learned-topic > span:first-child { flex: 1 1 16rem; }
+.learned-topic strong, .learned-topic small { display: block; }
+.learned-topic small { font-size: .875rem; color: var(--muted); margin-top: 3px; }
+.status-text { display: inline-flex; align-items: center; gap: 4px; font-size: .875rem; color: var(--muted); }
+.status-text.learned { color: var(--green); font-weight: 650; }
+.status-text.learning, .status-text.practicing { color: var(--blue); }
+.status-text.review { color: var(--ochre); font-weight: 650; }
+.theory-block, .mini-reading { padding: clamp(17px, 2.4vw, 29px); }
+.theory-block h2, .mini-reading h2 { font-size: 1.64rem; }
+.theory-block > p, .mini-reading > p { color: var(--muted); margin-top: 9px; max-width: 70ch; }
+.theory-rule, .rule-feedback { margin-top: 13px; padding: 9px 12px; border-left: 2px solid var(--ochre); background: var(--ochre-bg); color: var(--ochre); }
+.theory-rule p, .rule-feedback p { margin: 2px 0 0; }
+.rule-example { font-weight: 620; }
+.rule-feedback .button { margin-top: 8px; }
+.theory-examples, .theory-contrast { margin-top: 14px; }
+.theory-examples h3, .theory-contrast h3 { font-size: .9rem; color: var(--muted); margin-bottom: 4px; }
+.theory-examples p { font-weight: 620; }
+.theory-contrast dl { display: grid; gap: 5px 14px; margin: 0; }
+.theory-contrast dl > div { display: grid; grid-template-columns: minmax(88px, max-content) minmax(0, 1fr); gap: 7px; }
+.theory-contrast dt { font-size: .8125rem; color: var(--muted); }
+.theory-contrast dd { margin: 0; }
+.theory-table { width: 100%; border-collapse: collapse; font-size: .9rem; text-align: left; margin-top: 14px; }
+.theory-table caption { font-weight: 680; text-align: left; margin-bottom: 4px; }
+.theory-table th, .theory-table td { border-top: 1px solid var(--border); padding: 5px 8px; }
+.theory-table th { color: var(--muted); width: 43%; }
+.rule-drill .theory-block, .mini-reading { margin-bottom: 13px; }
+.rule-back, .checkpoint-note { margin-bottom: 12px; }
+.lesson-next { margin-top: 13px; }
+.lesson-outline { padding-left: 19px; color: var(--muted); margin-bottom: 0; }
+.lesson-outline li { padding: 4px 0; font-size: .875rem; }
+.lesson-outline li[data-done="true"] { color: var(--green); }
+.lesson-outline li[aria-current] { color: var(--blue); font-weight: 680; }
+.lesson-result > p + p { margin-top: 8px; }
+.checkpoint-errors { margin-top: 14px; }
+.checkpoint-errors summary { cursor: pointer; font-weight: 650; color: var(--blue); }
+.checkpoint-errors ul { padding: 0; list-style: none; }
+.checkpoint-errors li { padding: 8px 0; border-top: 1px solid var(--border); }
+.review-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.review-followup, .guided-progress { margin-bottom: 16px; }
+.review-rules, .progress-level ul { list-style: none; padding: 0; margin: 0; }
+.review-rules li, .progress-level li, .progress-level summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; border-top: 1px solid var(--border); padding: 9px 0; }
+.review-rules small { display: block; color: var(--muted); }
+.progress-level summary { cursor: pointer; }
+.progress-level summary span { color: var(--muted); font-size: .875rem; }
+.progress-level[open] ul { margin-left: 12px; }
 .course-resource-links { display: grid; gap: 7px; }
 .course-resource-links .text-link { display: flex; flex-direction: column; margin-top: 0; text-decoration: none; }
 .course-resource-links .text-link span { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }

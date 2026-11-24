@@ -57,6 +57,9 @@ export const grammarSkills = {
   'noun-declension': ['N-Deklination', 'noun-declension', 'B1'],
   'word-formation': ['Slovotvorba', 'word-formation', 'B1'],
   'paired-links': ['Einerseits, sowohl, weder', 'connectors', 'B2'],
+  register: ['Formálny a neformálny jazyk', 'vocabulary', 'B2'],
+  'text-cohesion': ['Súdržnosť textu', 'connectors', 'B2'],
+  'sentence-variation': ['Prirodzené obmeny viet', 'word-order', 'B2'],
   reading: ['Porozumenie textu', 'vocabulary', 'A1'],
   meaning: ['Slovná zásoba a význam', 'vocabulary', 'A1'],
 } as const satisfies Record<string, readonly [string, Topic, Level]>

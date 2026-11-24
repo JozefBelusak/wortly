@@ -65,7 +65,7 @@ function UnitPage({ study, current, progress, next }: { study: Study; current: C
         </details>}
         {exercise ? <>
           <ExercisePosition position={position + 1} total={unit.exercises.length} />
-          <Exercise key={exercise.id} exercise={exercise} record={study.record} onNext={() => study.checkpoint(checkpoint, position + 1)} nextLabel={position + 1 === unit.exercises.length ? 'Ukončiť cvičenia' : undefined} />
+          <Exercise key={exercise.id} exercise={exercise} study={study} onNext={() => study.checkpoint(checkpoint, position + 1)} nextLabel={position + 1 === unit.exercises.length ? 'Ukončiť cvičenia' : undefined} />
         </> : <div className="panel finish-panel">
           <CircleCheck size={26} /><h2>Cvičenia máš prejdené</h2>
           <p>{current.complete ? 'Túto lekciu máš zvládnutú.' : 'V prehľade lekcie uvidíš, ktoré podmienky ešte treba splniť.'}</p>

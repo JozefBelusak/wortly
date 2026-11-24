@@ -1,26 +1,24 @@
-import { BookOpen, CircleCheck, ClipboardList, Crosshair, Layers3, Play, Shapes, Shuffle, TextCursorInput } from 'lucide-react'
+import { BookOpen, CircleCheck, ClipboardList, Crosshair, Layers3, PencilLine, Play, Shapes, Shuffle, TextCursorInput } from 'lucide-react'
 import { PageIntro } from '../components/Layout'
 import { navigation, pageLink } from '../components/navigation'
 import type { Page } from '../components/navigation'
-import { availableCards, availableSentences } from '../data/curriculum'
+import { availableCards, nextGuidedLesson } from '../data/curriculum'
 import type { StudyData } from '../types'
 import { dueCards, localDate, studyTotals, wordCard } from '../utils/study'
 
 const shortcuts = [
   { page: 'mixed', icon: Shuffle, detail: 'Spoj staršie javy s novými', tone: 'blue' },
-  { page: 'grammar', icon: Shapes, detail: 'Pády, časovanie a slovosled', tone: 'blue' },
+  { page: 'sentences', icon: PencilLine, detail: 'Prelož a preformuluj vety', tone: 'blue' },
   { page: 'flashcards', icon: Layers3, detail: 'Vybav si slová a celé frázy', tone: 'ochre' },
   { page: 'reading', icon: BookOpen, detail: 'Krátke texty s otázkami', tone: 'green' },
 ] as const satisfies readonly { page: Page; icon: typeof Shapes; detail: string; tone: string }[]
 
 export function Dashboard({ data }: { data: StudyData }) {
   const cards = availableCards(data)
-  const sentences = availableSentences(data)
+  const lesson = nextGuidedLesson(data)
   const totals = studyTotals(data, cards)
   const due = dueCards([...cards, ...data.words.map(wordCard)], data.reviews).length
-  const level = sentences.some(item => item.difficulty === data.sentenceLevel) ? data.sentenceLevel : ''
-  const current = level ? sentences.filter(item => item.difficulty === level) : sentences
-  const next = Math.min(data.checkpoints[level ? `sentences/${level}` : 'sentences'] ?? 0, current.length)
+  const lessonStarted = lesson && (data.lessons?.[lesson.id]?.step ?? 0) > 0
   const today = data.daily?.date === localDate() ? data.daily : undefined
   const dailyDone = today && today.position >= 16
 
@@ -30,12 +28,11 @@ export function Dashboard({ data }: { data: StudyData }) {
       <section className="dashboard-hero" aria-labelledby="continue-title">
         <div className="hero-art" aria-hidden="true"><img src={`${import.meta.env.BASE_URL}brandenburger-tor.webp`} alt="" fetchPriority="high" /></div>
         <div className="hero-content">
-          <p className="eyebrow"><span className="gold-rule" /> Pokračuj v tréningu</p>
-          <h2 id="continue-title">Tvorba viet</h2>
-          <p>{level === 'B1' || level === 'B2' ? 'Poskladaj alebo preformuluj vetu podľa nemeckého zadania.' : 'Prelož vetu zo slovenčiny do nemčiny a precvič si gramatiku v kontexte.'}</p>
+          <p className="eyebrow"><span className="gold-rule" /> {lesson ? 'Lekcia ' + lesson.level : 'Opakovanie'}</p>
+          <h2 id="continue-title">{lesson?.title ?? 'Miešaný tréning'}</h2>
+          <p>{lesson?.goal ?? 'Zopakuj si naučené pravidlá v kombinovaných úlohách.'}</p>
           <div className="hero-actions">
-            <a className="button button-gold" href={pageLink('sentences')}><Play size={15} /> {next === 0 ? 'Začať tréning' : next === current.length ? 'Otvoriť tréning' : 'Pokračovať'}</a>
-            <span>{next < current.length ? `${current[next].difficulty} · Úloha ${next + 1} z ${current.length}` : `${current.length} z ${current.length} úloh prejdených`}</span>
+            <a className="button button-gold" href={lesson ? pageLink('course', { tema: lesson.id }) : pageLink('mixed')}><Play size={15} /> {lesson ? lessonStarted ? 'Pokračovať v lekcii' : 'Začať lekciu' : 'Otvoriť tréning'}</a>
           </div>
         </div>
       </section>
@@ -58,7 +55,7 @@ export function Dashboard({ data }: { data: StudyData }) {
               <span className="feature-icon ochre"><ClipboardList size={20} strokeWidth={1.7} /></span>
               <div><h3>Denné opakovanie</h3><p>{dailyDone ? 'Dnešné opakovanie je hotové' : today ? `${today.position} zo 16 úloh hotových` : '16 úloh · 10–15 minút'}</p></div>
             </div>
-            {totals.weak.length > 0 ? <p className="review-note">Na precvičenie sa hodí <a href={pageLink('grammar', { topic: totals.weak[0].topic })}>{totals.weak[0].name}</a>. Počet nedávnych chýb: {totals.weak[0].count}.</p> : <p className="review-note">Kartičky pripravené na opakovanie: <strong>{due}</strong></p>}
+            {totals.weak.length > 0 ? <p className="review-note">Na precvičenie sa hodí <a href={pageLink('review')}>{totals.weak[0].name}</a>. Počet nedávnych chýb: {totals.weak[0].count}.</p> : <p className="review-note">Kartičky pripravené na opakovanie: <strong>{due}</strong></p>}
             <a className="button button-secondary" href={pageLink('daily')}>{dailyDone ? 'Zobraziť prehľad' : today?.position ? 'Pokračovať v opakovaní' : 'Začať opakovanie'}</a>
           </div>
         </section>

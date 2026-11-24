@@ -2,8 +2,12 @@ import { Check, CircleAlert, CornerDownLeft, Lightbulb } from 'lucide-react'
 import { useRef, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import type { Study } from '../hooks/useStudy'
+import { exerciseRule, feedbackRule } from '../data/lessons/rules'
+import type { RuleReference } from '../data/lessons/rules'
+import { ruleMisses } from '../utils/lessonProgress'
+import { TheoryBlock } from './TheoryBlock'
 import { topics } from '../types'
-import type { Exercise as ExerciseModel } from '../types'
+import type { Exercise as ExerciseModel, LessonAnswer } from '../types'
 import { gradeAnswer } from '../utils/grade'
 import type { Grade } from '../utils/grade'
 
@@ -14,8 +18,13 @@ function highlightSubject(text: string, subject: string, label: string) {
   return <>{text.slice(0, start)}<mark lang="de" title={label}>{subject}</mark>{text.slice(start + subject.length)}</>
 }
 
-export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloha' }: {
-  exercise: ExerciseModel; record: Study['record']; onNext: () => void; nextLabel?: string
+export function Exercise({ exercise, study, onNext, nextLabel = 'Ďalšia úloha', assessment, reviewing = false }: {
+  exercise: ExerciseModel
+  study: Study
+  onNext: () => void
+  nextLabel?: string
+  assessment?: (answer: LessonAnswer) => void
+  reviewing?: boolean
 }) {
   const [answer, setAnswer] = useState('')
   const [previous, setPrevious] = useState<string>()
@@ -23,25 +32,39 @@ export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloh
   const [result, setResult] = useState<Grade>()
   const [hint, showHint] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  const [lastRule, setLastRule] = useState<RuleReference>()
+  const [review, setReview] = useState<RuleReference>()
+  const [justReviewed, setJustReviewed] = useState<string>()
+  const [submitted, setSubmitted] = useState(false)
   const input = useRef<HTMLTextAreaElement>(null)
   const form = useRef<HTMLFormElement>(null)
   const correct = !!result && result.status !== 'incorrect'
   const done = correct || revealed
   const toSlovak = exercise.type === 'reverse'
   const blank = exercise.prompt.includes('___')
-  const { glossary, subjectChange } = exercise.support ?? {}
+  const { glossary, subjectChange } = assessment ? {} : exercise.support ?? {}
   const [subjectSentence, subjectInstruction] = subjectChange ? exercise.prompt.split(' → ', 2) : []
   const promptLanguage = exercise.promptLanguage ?? (exercise.type === 'sentence' || (exercise.type === 'grammar' && !blank) ? undefined : 'de')
 
   function submit(event: FormEvent) {
     event.preventDefault()
-    if (!answer.trim() || answer.trim() === previous || done) return
+    if (!answer.trim() || answer.trim() === previous || done || submitted) return
     const grade = gradeAnswer(exercise, answer)
+    const wrong = grade.status === 'incorrect'
+    const rule = wrong ? feedbackRule(exercise, answer, grade) : lastRule ?? exerciseRule(exercise)
+    const ruleId = rule?.section.id
+    study.record(exercise, wrong ? 'incorrect' : 'correct', wrong ? grade.topic : undefined, wrong ? grade.skill : undefined, ruleId)
+
+    if (assessment) {
+      setSubmitted(true)
+      assessment({ exerciseId: exercise.id, response: answer.trim(), correct: !wrong, ruleId })
+      return
+    }
     setResult(grade)
+    setLastRule(rule)
     setPrevious(answer.trim())
     setAttempts(attempts + 1)
-    record(exercise, grade.status === 'incorrect' ? 'incorrect' : 'correct', grade.status === 'incorrect' ? grade.topic : undefined, grade.status === 'incorrect' ? grade.skill : undefined)
-    if (grade.status === 'incorrect') input.current?.focus()
+    if (wrong) input.current?.focus()
   }
 
   function handleKey(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -62,9 +85,23 @@ export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloh
     })
   }
 
+  if (review) {
+    const close = () => {
+      setReview(undefined)
+      requestAnimationFrame(() => input.current?.focus())
+    }
+    return <RuleDrill reference={review} study={study} onBack={close} onComplete={() => {
+      setJustReviewed(review.section.id)
+      close()
+    }} backLabel="Späť k pôvodnej úlohe" original={exercise} />
+  }
+  const feedback = result?.status === 'incorrect' ? lastRule : undefined
+  const repeatRule = feedback && !reviewing && ruleMisses(study.data.attempts, feedback.section.id) >= 2
+  const example = feedback?.section.examples.find(example => !example.includes(exercise.answer))
+
   return (
     <article className="panel exercise-panel">
-      <div className="exercise-topic"><span className="tag">{exercise.difficulty}</span><span>{topics[exercise.tags[0]]}</span></div>
+      <div className="exercise-topic"><span className="tag">{exercise.difficulty}</span>{!assessment && <span>{topics[exercise.tags[0]]}</span>}</div>
       <p className="exercise-prompt" lang={promptLanguage}>
         {subjectChange && subjectInstruction ? <>
           <span lang="de">{highlightSubject(subjectSentence, subjectChange.from, 'Pôvodný podmet')}</span>
@@ -77,21 +114,48 @@ export function Exercise({ exercise, record, onNext, nextLabel = 'Ďalšia úloh
       </div>}
       <form ref={form} onSubmit={submit}>
         <label className="field-label" htmlFor="answer">{blank ? 'Doplň chýbajúci výraz' : toSlovak ? 'Tvoja odpoveď po slovensky' : 'Tvoja odpoveď po nemecky'}</label>
-        <textarea id="answer" ref={input} value={answer} onChange={event => setAnswer(event.target.value)} onKeyDown={handleKey} rows={blank ? 2 : 3} placeholder={blank ? 'Napíš chýbajúci výraz…' : 'Napíš svoju odpoveď…'} readOnly={done} spellCheck={false} autoCapitalize="off" lang={toSlovak ? 'sk' : 'de'} />
+        <textarea id="answer" ref={input} value={answer} onChange={event => setAnswer(event.target.value)} onKeyDown={handleKey} rows={blank ? 2 : 3} placeholder={blank ? 'Napíš chýbajúci výraz…' : 'Napíš svoju odpoveď…'} readOnly={done || submitted} spellCheck={false} autoCapitalize="off" lang={toSlovak ? 'sk' : 'de'} />
         {!toSlovak && !done && <div className="answer-tools"><div className="character-keys" aria-label="Nemecké znaky">{['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'].map(character => <button key={character} type="button" onMouseDown={event => event.preventDefault()} onClick={() => insert(character)}>{character}</button>)}</div><span className="keyboard-hint"><CornerDownLeft size={14} /> Enter skontroluje</span></div>}
         {result && <div className={`feedback ${correct ? 'success' : 'try-again'}`} role="status">{correct ? <Check size={19} /> : <CircleAlert size={19} />}<div><strong>{result.title}</strong>{result.status === 'incorrect' && result.note && <p>{result.note}</p>}</div></div>}
+        {feedback && !done && <div className="rule-feedback">
+          <strong>{feedback.section.title}</strong>
+          <p>{feedback.section.rule}</p>
+          {example && <p lang="de" className="rule-example">{example}</p>}
+          {repeatRule && <button className="button button-secondary" type="button" onClick={() => setReview(feedback)}>Zopakovať pravidlo</button>}
+        </div>}
+        {justReviewed && !done && <p className="feedback success" role="status">Pravidlo máš precvičené. Skús ešte raz pôvodnú vetu.</p>}
         {hint && !done && <div className="feedback hint"><Lightbulb size={18} /><p>{exercise.hint}</p></div>}
         {done && <div className="solution"><strong>Vzorová odpoveď</strong><p lang={toSlovak ? 'sk' : 'de'}>{exercise.answer}</p><p>{exercise.explanation}</p></div>}
         <div className="button-row">
-          {done ? <button type="button" className="button button-primary" onClick={onNext}>{nextLabel}</button> : <>
+          {assessment ? <button className="button button-primary" disabled={!answer.trim() || submitted}>Odovzdať odpoveď</button>
+            : done ? <button type="button" className="button button-primary" onClick={onNext}>{nextLabel}</button> : <>
             <button className="button button-primary" disabled={!answer.trim() || answer.trim() === previous}>{attempts ? 'Skús ešte raz' : 'Skontrolovať'}</button>
             {attempts > 0 && !hint && <button type="button" className="button button-secondary" onClick={() => showHint(true)}>Zobraziť nápovedu</button>}
-            {attempts >= 2 && <button type="button" className="button button-secondary" onClick={() => setRevealed(true)}>Ukázať riešenie</button>}
+            {attempts >= 2 && !reviewing && <button type="button" className="button button-secondary" onClick={() => setRevealed(true)}>Ukázať riešenie</button>}
           </>}
         </div>
       </form>
     </article>
   )
+}
+
+export function RuleDrill({ reference, study, onBack, onComplete, backLabel = 'Späť', original }: {
+  reference: RuleReference; study: Study; onBack?: () => void; onComplete: () => void; backLabel?: string; original?: ExerciseModel
+}) {
+  const [position, setPosition] = useState(0)
+  const { section } = reference
+  const candidates = [...section.reviewExercises, ...section.exercises]
+  const alternatives = candidates.filter(item => item.prompt !== original?.prompt && item.answer !== original?.answer)
+  const exercises = (alternatives.length >= 2 ? alternatives : candidates).slice(0, 2)
+  const exercise = exercises[position]
+  return <section className="rule-drill" aria-label="Opakovanie pravidla">
+    {onBack && <button type="button" className="button button-secondary rule-back" onClick={onBack}>{backLabel}</button>}
+    <TheoryBlock section={section} />
+    <ExercisePosition position={position + 1} total={exercises.length} />
+    <Exercise key={exercise.id} exercise={exercise} study={study} reviewing
+      onNext={position + 1 === exercises.length ? onComplete : () => setPosition(position + 1)}
+      nextLabel={position + 1 === exercises.length ? 'Dokončiť opakovanie' : undefined} />
+  </section>
 }
 
 export function ExercisePosition({ position, total, label = 'Úloha' }: { position: number; total: number; label?: string }) {

@@ -14,7 +14,7 @@ export function lesson(content: Omit<Reading, 'questions'>, questions: Question[
   return {
     ...content,
     questions: questions.map(([prompt, answer, readingFacts, hint, explanation, glossary, acceptedAnswers = []], index): Exercise => ({
-      id: `${content.id}-${index + 1}`, type: 'reading', prompt, answer, readingFacts, hint, explanation,
+      id: `${content.id}-${index + 1}`, type: 'reading', prompt, answer, readingFacts, hint, explanation, theorySectionId: 'answer-from-context',
       acceptedAnswers, support: { glossary }, tags: ['vocabulary'], skillTags: ['reading'], difficulty: content.difficulty,
     })),
   }

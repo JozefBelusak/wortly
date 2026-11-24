@@ -7,6 +7,8 @@ import { Daily } from './pages/Daily'
 import { Dashboard } from './pages/Dashboard'
 import { Flashcards } from './pages/Flashcards'
 import { Progress } from './pages/Progress'
+import { Learn } from './pages/Learn'
+import { Review } from './pages/Review'
 import { Mixed } from './pages/Mixed'
 import { Reading } from './pages/Reading'
 import { Training } from './pages/Training'
@@ -33,8 +35,11 @@ export default function App() {
   const key = `${page}:${query.toString()}`
   return <Layout page={page} saveFailed={study.saveFailed}>
     {page === 'home' && <Dashboard data={study.data} />}
-    {page === 'course' && <Course key={key} study={study} unitId={query.get('lekcia')} />}
+    {page === 'course' && (query.has('bloky') || query.has('lekcia')
+      ? <Course key={key} study={study} unitId={query.get('lekcia')} />
+      : <Learn key={key} study={study} topicId={query.get('tema')} practice={query.has('cvic')} />)}
     {page === 'daily' && <Daily study={study} />}
+    {page === 'review' && <Review study={study} />}
     {page === 'mixed' && <Mixed study={study} />}
     {(page === 'sentences' || page === 'grammar' || page === 'correction' || page === 'translation') && <Training key={key} mode={page} study={study} initialTopic={query.get('topic')} />}
     {page === 'flashcards' && <Flashcards key={key} study={study} unitId={query.get('lekcia')} />}

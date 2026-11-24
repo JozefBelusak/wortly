@@ -28,8 +28,8 @@ export function useStudy() {
     }
   }, [data])
 
-  function record(exercise: Exercise, result: Attempt['result'], topic: Topic = exercise.tags[0] ?? 'vocabulary', skill?: SkillId) {
-    const attempt: Attempt = { exerciseId: exercise.id, type: exercise.type, result, topic, skill, at: Date.now() }
+  function record(exercise: Exercise, result: Attempt['result'], topic: Topic = exercise.tags[0] ?? 'vocabulary', skill?: SkillId, ruleId?: string) {
+    const attempt: Attempt = { exerciseId: exercise.id, type: exercise.type, result, topic, skill, ruleId, at: Date.now() }
     setData(current => ({ ...current, attempts: [...current.attempts, attempt] }))
   }
 

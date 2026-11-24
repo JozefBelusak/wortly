@@ -45,15 +45,15 @@ export function Daily({ study }: { study: Study }) {
       <section className="training-main">
         {!plan ? <div className="panel finish-panel daily-start"><ClipboardList size={30} /><h2>Dnešný tréning</h2><p>Pripravíme 16 úloh. Keď sa sem dnes vrátiš, pokračuješ pri poslednej úlohe.</p><button className="button button-primary" onClick={() => setData(current => ({ ...current, daily: makeDailyPlan(current, pool,
           exercises.filter(item => item.type === 'sentence'),
-          exercises.filter(item => item.type === 'grammar' && !item.prompt.includes('___')
-            && (item.practice === 'mixed' || transformations.some(form => form.id === item.id))),
+          exercises.filter(item => item.type === 'grammar' && (item.lessonId
+            || (!item.prompt.includes('___') && (item.practice === 'mixed' || transformations.some(form => form.id === item.id))))),
           exercises.filter(item => item.type === 'correction'),
           new Date(), exercises,
         ) }))}>Začať opakovanie</button></div>
           : position >= total ? <div className="panel finish-panel"><CircleCheck size={30} /><h2>Dnešné opakovanie je hotové</h2><p>Prešiel si všetkých {total} úloh. Zajtra tu nájdeš ďalší výber.</p><a className="button button-primary" href={pageLink('progress')}>Zobraziť progres</a></div>
             : <><ExercisePosition position={position + 1} total={total} />
               {card ? <RecallCard key={card.id} card={card} onRate={rating => { study.rate(card.id, rating); advance() }} />
-                : exercise ? <Exercise key={exercise.id} exercise={exercise} record={study.record} onNext={advance} />
+                : exercise ? <Exercise key={exercise.id} exercise={exercise} study={study} onNext={advance} />
                   : <DailySentence response={response} onSave={text => {
                     const at = Date.now()
                     setData(current => ({ ...current, writing: [{ id: String(at), prompt: response.prompt, promptLanguage: response.language, text, checked: [], at }, ...current.writing] }))

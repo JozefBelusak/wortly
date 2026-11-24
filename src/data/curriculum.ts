@@ -8,6 +8,9 @@ import { sentences } from './sentences'
 import { cards } from './vocabulary'
 import { spiralFoundation } from './spiralFoundation'
 import { spiralAdvanced } from './spiralAdvanced'
+import { guidedLessons } from './lessons/catalog'
+import type { Lesson } from './lessons/model'
+import { masteredLevel } from '../utils/lessonProgress'
 
 const foundationBank = [...grammar, ...sentences, ...corrections]
 const spiralBank = [...spiralFoundation, ...spiralAdvanced]
@@ -45,6 +48,8 @@ const readingById = new Map([...readings, ...advancedReadings].map(reading => [r
 export function courseProgress(data: StudyData) {
   const correct = new Set(data.attempts.filter(attempt => attempt.result === 'correct').map(attempt => attempt.exerciseId))
   const mastered = new Set<string>()
+  const passedBasics = masteredLevel(data, 'A1') && masteredLevel(data, 'A2')
+  const passedB1 = masteredLevel(data, 'B1')
   return courseUnits.map(unit => {
     const solved = unit.exercises.filter(exercise => correct.has(exercise.id))
     const correctSentences = solved.filter(exercise => exercise.type === 'sentence').length
@@ -55,7 +60,8 @@ export function courseProgress(data: StudyData) {
     const hasWriting = !!writing && data.writing.some(entry =>
       entry.assignmentId === unit.id && wordCount(entry.text) >= writing.minWords && writing.checklist.every(item => entry.checked.includes(item)),
     )
-    const missing = unit.requires.filter(id => !mastered.has(id))
+    const passedGuidedPrerequisite = (unit.id === 'b1-infinitiv' && passedBasics) || (unit.id === 'b2-konjunktiv' && passedB1)
+    const missing = passedGuidedPrerequisite ? [] : unit.requires.filter(id => !mastered.has(id))
     const complete = missing.length === 0 && solved.length >= unit.minCorrect && correctSentences >= (unit.minSentences ?? 0)
       && demonstratedSkills.length === (unit.skills?.length ?? 0) && correctReading >= (unit.reading?.minCorrect ?? 0)
       && (!writing || hasWriting)
@@ -71,12 +77,35 @@ export function availableUnits(data: StudyData) {
   return courseProgress(data).filter(item => item.missing.length === 0).map(item => item.unit)
 }
 
+export function guidedAccess(data: StudyData) {
+  const open = new Set(availableUnits(data).map(unit => unit.id))
+  const b1 = open.has('b1-infinitiv')
+  const b2 = open.has('b2-konjunktiv')
+  return (lesson: Lesson) => (lesson.level !== 'B1' || b1) && (lesson.level !== 'B2' || b2)
+    && (b2 || lesson.prerequisites.every(id => !!data.lessons?.[id]?.learnedAt))
+}
+
+export function nextGuidedLesson(data: StudyData, isOpen = guidedAccess(data)) {
+  const available = guidedLessons.filter(lesson => isOpen(lesson) && !data.lessons?.[lesson.id]?.learnedAt)
+  return available.find(lesson => lesson.id === data.activeLessonId) ?? available[0]
+}
+
+export function availableWritingUnits(data: StudyData) {
+  const units = availableUnits(data)
+  if (data.lessons?.['text-argumentation']?.learnedAt && !units.some(unit => unit.id === 'b2-abwaegen')) {
+    const unit = courseUnits.find(item => item.id === 'b2-abwaegen')
+    if (unit) return [...units, unit]
+  }
+  return units
+}
+
 export function availablePractice(data: StudyData) {
   const unlocked = new Set(availableUnits(data).map(unit => unit.id))
   return [
     ...foundationBank,
     ...advancedUnits.filter(unit => unlocked.has(unit.id)).flatMap(unit => unit.exercises),
     ...spiralBank.filter(exercise => unlocked.has(exercise.unitId)),
+    ...guidedLessons.filter(lesson => data.lessons?.[lesson.id]?.learnedAt).flatMap(lesson => lesson.practice),
   ]
 }
 
@@ -86,7 +115,12 @@ export function availableSentences(data: StudyData) {
 
 export function availableReadings(data: StudyData) {
   const unlocked = new Set(availableUnits(data).flatMap(unit => unit.reading ? [unit.reading.id] : []))
-  return [...readings, ...advancedReadings.filter(reading => unlocked.has(reading.id))]
+  if (data.lessons?.['text-argumentation']?.learnedAt) unlocked.add('b2-verkehr')
+  return [
+    ...readings,
+    ...advancedReadings.filter(reading => unlocked.has(reading.id)),
+    ...guidedLessons.filter(lesson => data.lessons?.[lesson.id]?.learnedAt).map(lesson => lesson.reading),
+  ]
 }
 
 export function availableCards(data: StudyData) {

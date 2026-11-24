@@ -42,7 +42,7 @@ export function Mixed({ study }: { study: Study }) {
     {exercise && selection && <div className="training-layout">
       <section className="training-main">
         <div className="mixed-position"><span>{labels[selection.reason]}</span><span>Úloha {selection.position}</span></div>
-        <Exercise key={exercise.id} exercise={exercise} record={study.record} onNext={next} />
+        <Exercise key={exercise.id} exercise={exercise} study={study} onNext={next} />
       </section>
       <aside className="training-sidebar">
         <div className="panel side-note">

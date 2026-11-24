@@ -51,7 +51,7 @@ export function Training({ mode, study, initialTopic }: { mode: Mode; study: Stu
         </div>}
         {item ? <>
           <ExercisePosition position={position + 1} total={pool.length} />
-          <Exercise key={`${section}-${item.id}`} exercise={item} record={study.record} onNext={() => study.checkpoint(section, position + 1)} nextLabel={position + 1 === pool.length ? 'Dokončiť cvičenie' : undefined} />
+          <Exercise key={`${section}-${item.id}`} exercise={item} study={study} onNext={() => study.checkpoint(section, position + 1)} nextLabel={position + 1 === pool.length ? 'Dokončiť cvičenie' : undefined} />
         </> : <div className="panel finish-panel"><CircleCheck size={28} /><h2>Cvičenie dokončené</h2><p>Prešiel si všetkých {pool.length} úloh v tomto výbere.</p><button className="button button-primary" onClick={() => study.checkpoint(section, 0)}>Zopakovať cvičenie</button></div>}
       </section>
       <aside className="training-sidebar">

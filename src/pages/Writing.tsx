@@ -3,14 +3,14 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { PageIntro } from '../components/Layout'
 import { pageLink } from '../components/navigation'
-import { availableUnits, wordCount } from '../data/curriculum'
+import { availableWritingUnits, wordCount } from '../data/curriculum'
 import { writingChecklist, writingPrompts } from '../data/writing'
 import type { Study } from '../hooks/useStudy'
 import type { WritingEntry } from '../types'
 import { formatDate } from '../utils/study'
 
 export function Writing({ study, assignmentId }: { study: Study; assignmentId: string | null }) {
-  const assignments = availableUnits(study.data).filter(unit => unit.writing)
+  const assignments = availableWritingUnits(study.data).filter(unit => unit.writing)
   const [selected, setSelected] = useState(assignments.find(unit => unit.id === assignmentId)?.id ?? '0')
   const [text, setText] = useState('')
   const [checked, setChecked] = useState<string[]>([])

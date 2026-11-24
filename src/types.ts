@@ -57,6 +57,9 @@ export interface Exercise {
   difficulty: Level
   practice?: 'focused' | 'mixed'
   diagnostics?: { skill: SkillId; patterns: string[]; hint: string }[]
+  lessonId?: string
+  theorySectionId?: string
+  errorRules?: { pattern: string; theorySectionId: string }[]
   readingFacts?: string[][]
   support?: ExerciseSupport
 }
@@ -128,6 +131,7 @@ export interface Attempt {
   result: 'correct' | 'incorrect'
   topic: Topic
   skill?: SkillId
+  ruleId?: string
   at: number
 }
 
@@ -185,6 +189,20 @@ export interface MixedPractice {
   position: number
 }
 
+export interface LessonAnswer {
+  exerciseId: string
+  response: string
+  correct: boolean
+  ruleId?: string
+}
+
+export interface LessonProgress {
+  step: number
+  answers: LessonAnswer[]
+  learnedAt?: number
+  reviewedAt?: number
+}
+
 export interface StudyData {
   attempts: Attempt[]
   reviews: Record<string, CardReview>
@@ -194,4 +212,6 @@ export interface StudyData {
   sentenceLevel?: Level | ''
   daily?: DailyPlan
   mixed?: MixedPractice
+  lessons?: Record<string, LessonProgress>
+  activeLessonId?: string
 }

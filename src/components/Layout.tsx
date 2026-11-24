@@ -6,9 +6,12 @@ import { navigation, pageLink } from './navigation'
 import type { Page } from './navigation'
 
 const groups: { label: string; pages: Page[] }[] = [
-  { label: 'Učebňa', pages: ['home', 'course', 'daily'] },
-  { label: 'Precvičovanie', pages: ['mixed', 'sentences', 'grammar', 'flashcards', 'reading', 'correction', 'translation', 'writing'] },
-  { label: 'Môj zošit', pages: ['vocabulary', 'progress'] },
+  { label: 'Učenie', pages: ['home', 'course'] },
+  { label: 'Precvičovanie', pages: ['mixed', 'sentences', 'grammar', 'translation', 'correction'] },
+  { label: 'Opakovanie', pages: ['daily', 'review'] },
+  { label: 'Slovná zásoba', pages: ['vocabulary', 'flashcards'] },
+  { label: 'Čítanie a písanie', pages: ['reading', 'writing'] },
+  { label: 'Výsledky', pages: ['progress'] },
 ]
 
 function getTheme() {
